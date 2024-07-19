@@ -1,6 +1,5 @@
-using System.Net;
 using System.Text.Json;
-using System.Text.Json.Nodes;
+using ApiHelper;
 
 namespace Cartas
 {
@@ -31,23 +30,13 @@ namespace Cartas
         public static async Task<Baraja> Shuffle(){
             //modificar para usarlo como constructor y no como metodo estático.            
             //Sin instanciar las Opciones del serializer no podría Deserializar.
-            //TODO: abstraer en otra clase y nuevo namespace
             JsonSerializerOptions DoCards = new(){
                 PropertyNameCaseInsensitive = true,
                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower//Fundamentalmente esta linea
             };
 
-            //TODO: abstraer en otra clase y nuevo namespace
-            //Creo la instancia de cliente para hacer la petición
-            HttpClient client = new();
-            //Hago la peticion
             string url = "https://deckofcardsapi.com/api/deck/new/draw/?count=52";
-            HttpResponseMessage response = await client.GetAsync(url);
-            //Hago el response Ensure
-            response.EnsureSuccessStatusCode();
-            //Hago un string a partir de el body de mi response
-            string body = await response.Content.ReadAsStringAsync();
-            
+            var body = await GET.From(url);
             var mazo = JsonSerializer.Deserialize<Baraja>(body, DoCards);
             
             return mazo;
