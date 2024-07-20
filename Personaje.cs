@@ -1,4 +1,5 @@
 using ApiHelper;
+using Cartas;
 using System.Text.Json;
 
 namespace Personajes{
@@ -12,6 +13,7 @@ public class Personaje{
     private int aura;
     private int fish;
     private int cheat;
+    private PocketCards pocket;
 
     public string Name { get => name; set => name = value; }
     public string Edad { get => edad; set => edad = value; }
@@ -20,6 +22,7 @@ public class Personaje{
     public int Aura { get => aura; set => aura = value; }
     public int Fish { get => fish; set => fish = value; }
     public int Cheat { get => cheat; set => cheat = value; }
+    public PocketCards Pocket { get => pocket; set => pocket = value; }
 
     public void MostrarStats(){
         Console.WriteLine(Name);
@@ -32,16 +35,22 @@ public class Personaje{
     }
     //Todo: Implementar una habilidad, de una lista de habilidades, como metodos en cada instancia. Implementarlo a través de ExtensionMethods
 }
+
 //Clase Fabrica de Personajes.
 public class FabricaDePersonajes{
-    public static async Task<List<Personaje>> CrearPersonajes(int n){
+
+    //TODO crear un metodo para crear 1 personaje y usarlo en el metodo estático.
+    //Método estatico para crear una lista de personajes.
+    public static async Task<List<Personaje>> CrearListaPersonajes(int n){
         //Ver la forma de que no me caguen las opciones del serializer 
         JsonSerializerOptions jsonOPt = new(){
                 PropertyNameCaseInsensitive = true,
                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower//Fundamentalmente esta linea
             };
+        //Creacion de una clase para la creacion de numeros aleatorios y la lista de personajes.
         var rand = new Random();
         var listaPersonajes = new List<Personaje>();
+        //Iteracion para la creacion de personajes y adicion a la lista
         for (int i = 1; i <= n; i++)
         {
             //Obtención del nombre del personaje
