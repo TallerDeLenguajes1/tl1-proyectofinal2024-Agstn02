@@ -1,5 +1,6 @@
 using ApiHelper;
 using Cartas;
+using Personajes;
 using System.Text.Json;
 
 namespace Personajes{
@@ -32,6 +33,11 @@ public class Personaje{
         Console.WriteLine(Aura);
         Console.WriteLine(Fish);
         Console.WriteLine(Cheat);
+        Console.WriteLine("Pocket cards:");
+        Console.WriteLine(Pocket.Card2.Code);
+        Console.WriteLine(Pocket.Card2.Code);
+        Console.WriteLine(Pocket.Card1.Code);
+        Console.WriteLine(Pocket.Card2.Code);
     }
     //Todo: Implementar una habilidad, de una lista de habilidades, como metodos en cada instancia. Implementarlo a través de ExtensionMethods
 }
@@ -70,4 +76,26 @@ public class FabricaDePersonajes{
 
 }
 
+}
+public class PersonajesJson{
+    public bool Existe(string ruta){
+        var existe = File.Exists(ruta);
+        return existe;
+    }
+    public void GuardarPersonajes(List<Personaje> lista, string ruta){
+        if(!Existe(ruta)){ //Si el archivo no existe lo crea.
+            File.Create(ruta);
+        }
+
+        foreach (Personaje pj in lista)// para cada personaje en la lista se transforma en json y se escribe en el archivo recibido 
+        {
+            string personaje = JsonSerializer.Serialize(pj);
+            File.WriteAllText(ruta,personaje);// Quiza tenga que usar append.
+        }
+    }
+    public List<Personaje> LeerPersonajes(string ruta){
+        var personajes  = File.ReadAllText(ruta);
+        var lista = JsonSerializer.Deserialize<List<Personaje>>(personajes);
+        return lista;
+    }
 }
