@@ -76,7 +76,6 @@ public class FabricaDePersonajes{
 
 }
 
-}
 public class PersonajesJson{
     public bool Existe(string ruta){
         var existe = File.Exists(ruta);
@@ -98,4 +97,6 @@ public class PersonajesJson{
         var lista = JsonSerializer.Deserialize<List<Personaje>>(personajes);
         return lista;
     }
+}
+
 }
