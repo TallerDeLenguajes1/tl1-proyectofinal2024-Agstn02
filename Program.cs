@@ -1,19 +1,14 @@
-﻿using Cartas;
-using Personajes;
-
-
-Baraja prueba = new();
-prueba.Suffle();
-var fabrica = new FabricaDePersonajes();
-
+﻿using Personajes;
 
 List<Personaje> personajes = await FabricaDePersonajes.CrearListaPersonajes(3);
-Console.Write(prueba.Deck_id);
-foreach (var item in prueba.Cards)
-{
-    Console.WriteLine(item.Code);
-}
 
-personajes.ForEach(delegate(Personaje pj){
-    pj.MostrarStats();
-});
+
+Console.Read();
+
+Mesa mesa1 = new(personajes[1], personajes[2]);
+// mesa1.Deck.Show();
+Console.Read();
+mesa1.PocketPairs();
+mesa1.Jugador.MostrarStats();
+mesa1.Computadora.MostrarStats();
+Console.Read();
