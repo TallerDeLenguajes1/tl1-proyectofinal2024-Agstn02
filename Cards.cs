@@ -12,24 +12,45 @@ namespace Cards
         public string Value { get => value; set => this.value = value; }
         public string Suit { get => suit; set => suit = value; }
     }
-    //Clase de poket
-    public class PocketCards{
-        public Card Card1 { get ; set ; }
-        public Card Card2 { get ; set ; }
+    //Enum de Values Para compararlos:
+    public enum Value {
+        EscaleraReal,
+        Poquer,
+        EscaleraColor,
+        FullHouse,
+        Color,
+        Escalera,
+        Trio,
+        DoblePar,
+        Par,
+        CartaAlta
     }
+    //Clase HAND - Maneja las cartas que se reparten y las cartas de mesa. Identifica la jugada y permite modificar las cartas.
+    public class Hand{
+        private List<Card> _hand;
+        private Value value;
+        public Value Value { get => value;}
+        
+        public Hand(List<Card> hand){
+            _hand = hand;
+        }
+        //Métodos:
+        public void AddTableCards(List<Card> tableCards){
+            _hand.AddRange(tableCards);
+        }
+        public void DefineValue(){
+            
+        }
+
+    }
+
     //Clase Deck
     public class Deck{
-        // private bool success;
-        // private string deck_id;
-        private IList<Card> cards;
-
-        // public bool Success { get => success; set => success = value; }
-        // public string Deck_id { get => deck_id; set => deck_id = value; }
-        public IList<Card> Cards { get => cards; set => cards = value; } //Uso una IList para poder conocer la posición de Cards que pueda necesitar y llamar a ese index.
+        private List<Card> cards;
+        public List<Card> Cards { get => cards; set => cards = value; } //Uso una IList para poder conocer la posición de Cards que pueda necesitar y llamar a ese index.
 
         //Encontrar la forma de que sea el constructor de clase.
-        public  async void Suffle(){
-            //modificar para usarlo como constructor y no como metodo estático.
+        public async void Suffle(){
             //Sin instanciar las Opciones del serializer no podría Deserializar.
             JsonSerializerOptions DoCards = new(){
                 PropertyNameCaseInsensitive = true,
@@ -40,10 +61,15 @@ namespace Cards
             var body = await GET.From(url);
             var mazo = JsonSerializer.Deserialize<Deck>(body, DoCards);
             
-            // Success = mazo.Success;
-            // Deck_id = mazo.Deck_id;
             Cards = mazo.Cards;
         }
+
+        public Card Deal(){
+            var card = Cards[0];
+            Cards.RemoveAt(0);
+            return card;
+        }
+        
         public void Show(){
             var mazo = Cards;
             foreach (var card in mazo)

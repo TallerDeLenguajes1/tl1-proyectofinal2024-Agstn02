@@ -12,7 +12,7 @@ public class Mesa
     //Porpiedades
     public Personaje Jugador { get => jugador; set => jugador = value; }
     public Personaje Computadora { get => computadora; set => computadora = value; }
-    public Deck _Deck { get => deck; }
+    public Deck Deck { get => deck; }
     public int Button { get => button; set => button = value; }
 
     //Constructor.
@@ -20,9 +20,8 @@ public class Mesa
     {
         jugador = pla;
         computadora = com;
-        _Deck.Suffle();
-    }
-    //Eliminado el metodo pocketpairs - lo manejará la clase Deck    
+        Deck.Suffle();
+    }    
 
     
     public class Jugadas(){

@@ -1,6 +1,5 @@
 using ApiHelper;
 using Cards;
-using Personajes;
 using System.Text.Json;
 
 namespace Personajes{
@@ -14,7 +13,7 @@ public class Personaje{
     private int aura;
     private int fish;
     private int cheat;
-    private PocketCards pocket;
+    private Card[] pocket;
 
     public string Name { get => name; set => name = value; }
     public string Edad { get => edad; set => edad = value; }
@@ -23,7 +22,7 @@ public class Personaje{
     public int Aura { get => aura; set => aura = value; }
     public int Fish { get => fish; set => fish = value; }
     public int Cheat { get => cheat; set => cheat = value; }
-    public PocketCards Pocket { get => pocket; set => pocket = value; }
+    public Card[] Pocket { get => pocket; set => pocket = value; }
 
     public void MostrarStats(){
         Console.WriteLine(Name);
@@ -34,10 +33,8 @@ public class Personaje{
         Console.WriteLine(Fish);
         Console.WriteLine(Cheat);
         Console.WriteLine("Pocket cards:");
-        Console.WriteLine(Pocket.Card2.Code);
-        Console.WriteLine(Pocket.Card2.Code);
-        Console.WriteLine(Pocket.Card1.Code);
-        Console.WriteLine(Pocket.Card2.Code);
+        Console.WriteLine(Pocket[0].Code);
+        Console.WriteLine(Pocket[1].Code);
     }
     //Todo: Implementar una habilidad, de una lista de habilidades, como metodos en cada instancia. Implementarlo a través de ExtensionMethods
 }
@@ -68,7 +65,7 @@ public class FabricaDePersonajes{
             personaje.Luck = rand.Next(100);
             personaje.Aura = rand.Next(100);
             personaje.Fish = rand.Next(100);
-            personaje.Cheat = rand.Next(100);
+            personaje.Cheat = rand.Next(50);
             listaPersonajes.Add(personaje);
         }
         return listaPersonajes;
