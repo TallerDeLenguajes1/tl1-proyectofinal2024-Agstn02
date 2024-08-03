@@ -20,7 +20,6 @@ public class Mesa
     {
         jugador = pla;
         computadora = com;
-        Deck.Suffle();
     }    
 
     

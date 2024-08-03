@@ -14,43 +14,55 @@ namespace Cards
     }
     //Enum de Values Para compararlos:
     public enum Value {
-        EscaleraReal,
-        Poquer,
-        EscaleraColor,
-        FullHouse,
-        Color,
-        Escalera,
-        Trio,
-        DoblePar,
+        CartaAlta,
         Par,
-        CartaAlta
+        DoblePar,
+        Escalera,
+        Color,
+        FullHouse,
+        Trio,
+        EscaleraColor,
+        Poquer,
+        EscaleraReal
     }
     //Clase HAND - Maneja las cartas que se reparten y las cartas de mesa. Identifica la jugada y permite modificar las cartas.
-    public class Hand{
-        private List<Card> _hand;
+    public class Hand(List<Card> poket)
+    {
+        private List<Card> _hand = poket;
         private Value value;
         public Value Value { get => value;}
-        
-        public Hand(List<Card> hand){
-            _hand = hand;
-        }
+
         //Métodos:
-        public void AddTableCards(List<Card> tableCards){
+        public void GetCards(List<Card> tableCards){
             _hand.AddRange(tableCards);
         }
         public void DefineValue(){
             
-        }
+            Card[] sorted = [.. _hand];
+            Array.Sort(sorted);
 
+            foreach (var item in sorted)
+            {
+                Console.WriteLine(item.Code);
+            }
+
+        }
+        public void Show(){
+            foreach (var item in _hand)
+            {
+                Console.WriteLine(item.Code);                
+            }
+        }
     }
 
     //Clase Deck
-    public class Deck{
+    public class Deck{ 
         private List<Card> cards;
+        
         public List<Card> Cards { get => cards; set => cards = value; } //Uso una IList para poder conocer la posición de Cards que pueda necesitar y llamar a ese index.
 
         //Encontrar la forma de que sea el constructor de clase.
-        public async void Suffle(){
+        public async Task Shuffle(){
             //Sin instanciar las Opciones del serializer no podría Deserializar.
             JsonSerializerOptions DoCards = new(){
                 PropertyNameCaseInsensitive = true,
@@ -65,9 +77,24 @@ namespace Cards
         }
 
         public Card Deal(){
-            var card = Cards[0];
+            Card card = Cards[0];
             Cards.RemoveAt(0);
             return card;
+        }
+
+        public List<Card> DealPoket(){ //Reparte las poket cards, no se intercalan pero a fines del juego no hay problema.
+            List<Card> poket = new();
+            poket.Add(Deal());
+            poket.Add(Deal());
+            return poket;
+        }
+        public List<Card> DealTable(){
+            List<Card> table = new();
+            for (int i = 0; i < 5; i++)
+            {
+                table.Add(Deal());
+            }
+            return table;
         }
         
         public void Show(){
