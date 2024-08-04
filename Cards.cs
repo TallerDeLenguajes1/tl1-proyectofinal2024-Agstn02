@@ -36,14 +36,44 @@ namespace Cards
         public void GetCards(List<Card> tableCards){
             _hand.AddRange(tableCards);
         }
-        public void DefineValue(){
-            
-            Card[] sorted = [.. _hand];
-            Array.Sort(sorted);
-
-            foreach (var item in sorted)
+        //CountSuits() devuelve un diccionario con la cantidad de cartas de cada suit.
+        private Dictionary<string, int> CountSuits(List<Card> hand){
+            Dictionary<string , int> suits = new();
+            suits.Add("SPADES",0);
+            suits.Add("HEARTS",0);
+            suits.Add("CLUBS",0);
+            suits.Add("DIAMONDS",0);
+            foreach (Card item in hand)
             {
-                Console.WriteLine(item.Code);
+                switch (item.Suit)
+                {
+                    case "SPADES":
+                    suits["SPADES"] += 1;
+                    break;
+                    case "HEARTS":
+                    suits["HEARTS"] += 1;
+                    break;
+                    case "CLUBS":
+                    suits["CLUBS"] += 1;
+                    break;
+                    case "DIAMONDS":
+                    suits["diamonds"] += 1;
+                    break;
+                }
+            }
+            return suits;
+        }
+
+        public void DefineValue(){
+            var suits = CountSuits(_hand);
+            bool IsFlushed = suits.ContainsValue(5) | suits.ContainsValue(6) |suits.ContainsValue(7);
+            if(IsFlushed){ // Posible escalera real, escalera de color o color.
+                
+            }
+            else 
+            {
+                //Puede ser cualquier jugada que no involucre los suits, y amerita evaluar los valores de las cartas.
+                    
             }
 
         }
