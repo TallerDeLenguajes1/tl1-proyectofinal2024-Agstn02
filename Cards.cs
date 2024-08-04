@@ -13,7 +13,7 @@ namespace Cards
         public string Suit { get => suit; set => suit = value; }
     }
     //Enum de Values Para compararlos:
-    public enum Value {
+    public enum HandValue {
         CartaAlta,
         Par,
         DoblePar,
@@ -25,14 +25,19 @@ namespace Cards
         Poquer,
         EscaleraReal
     }
+    //Uso la clase PokerStraights para poder deserializar el resultado en json desde el archivo en la carpeta assets.
+    public class StraightsValues{
+        public List<int[]> PokerStraight {get ; set;}
+    } 
     //Clase HAND - Maneja las cartas que se reparten y las cartas de mesa. Identifica la jugada y permite modificar las cartas.
     public class Hand(List<Card> poket)
     {
         private List<Card> _hand = poket;
-        private Value value;
-        public Value Value { get => value;}
+        private HandValue value;
+        public HandValue Value { get => value;}
 
         //Métodos:
+        //GetCards() añade un rango de cartas a mi lista _hand.
         public void GetCards(List<Card> tableCards){
             _hand.AddRange(tableCards);
         }
@@ -63,20 +68,80 @@ namespace Cards
             }
             return suits;
         }
-
+        private string NormalizeHand(){
+            //Creo una Lista de los valores parseados a su valor entero.
+            List<int> ParsedValues = new();
+            for (int i = 0; i < _hand.Count; i++)
+            {
+                ParsedValues.Add( _hand[i].Value switch
+                    {
+                        "J" => 11,
+                        "Q" => 12,
+                        "K" => 13,
+                        "A" => 14,
+                        _ => int.Parse(_hand[i].Value),
+                    });
+            }
+            //Ordeno La lista 
+            ParsedValues.Sort();
+            //Combierto la Lista a un string para poder compararlo facilmente. cheaqueando la posibilidad de que un As pueda usarse como 2.
+            if(ParsedValues.Contains(14)){
+                //Si existe un As en la mano inserto el valor 14(el as) al principio de esta y puedo asegurarme que al hacer el contain luego, el as ocupe el lugar de 1 y 14 simultaneamente. Como solo voy a evaluar patrones de 5 caracteres no afecta de ninguna manera.
+                ParsedValues.Insert(0,14);
+            }
+            return ParsedValues.ToString(); 
+        }
+        private bool IsStraight(){
+            var StringValues = NormalizeHand();
+            //Verifico si existe una escalera de algun tipo.
+            //Para eso uso el archivo straight.json
+            string StraightsFile = File.ReadAllText("assets/straight.json");
+            //Deserializo en la clase StraightsValues
+            var straigths = JsonSerializer.Deserialize<StraightsValues>(StraightsFile);
+            //Itero en la lista de arrays de los valores para buscar alguna coincidencia:
+            foreach (var item in straigths.PokerStraight)
+            {
+                if(StringValues.Contains(item.ToString())){//Si para el string(obtenido de un int[]) existe una coincidencia entonces es una escalera.
+                    return true;
+                }
+            }
+            //Si para ningun miembro de la lista de int[]'s  entonces no es una escalera.
+            return false;
+        }
+        private bool IsRoyal(){
+            //Uso la misma estrategia que en IsStraight()
+            string Royal = "1011121314";
+            string OrderedHand = NormalizeHand();
+            if (OrderedHand.Contains(Royal))
+            {
+                return true;
+            }
+            return false;
+        }
         public void DefineValue(){
             var suits = CountSuits(_hand);
-            bool IsFlushed = suits.ContainsValue(5) | suits.ContainsValue(6) |suits.ContainsValue(7);
+            bool IsFlushed = suits.ContainsValue(5) | suits.ContainsValue(6) | suits.ContainsValue(7);
             if(IsFlushed){ // Posible escalera real, escalera de color o color.
-                
+                if(!IsStraight()){
+                    value = HandValue.Color;
+                }
+                else if(!IsRoyal())
+                {
+                    value = HandValue.EscaleraColor;
+                }
+                else
+                {
+                    value = HandValue.EscaleraReal;
+                }
             }
             else 
             {
                 //Puede ser cualquier jugada que no involucre los suits, y amerita evaluar los valores de las cartas.
-                    
+
             }
 
         }
+        //Show() muestra los valores de cada carta.
         public void Show(){
             foreach (var item in _hand)
             {
