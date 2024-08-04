@@ -32,9 +32,26 @@ public class Table(Personaje player, Personaje computer)
 
     public void StartRound(){
         var round = new Round();
+        //una vez iniciado el round:
+        //1. Reaprtir las cartas a cada jugador
 
-        roundList.Add(round);
+        //2. Ronda de apuestas.
+
+        //3. Repartir el resto de cartas, pero solo mostrar el flop
         
+        //4. Ronda de apuestas.
+
+        //5. Mostrar el turn.
+
+        //6.Rona de apuestas.
+
+        //7.Muestro el river.
+
+        //8.Ronda de apuestas.
+
+        //9.Mostrar ganador.       
+        
+        roundList.Add(round);
     }
     private int CompareHands(Hand hand1 , Hand hand2){
         if (hand1.Value > hand2.Value)//compara los valores del Tipo Handvalue
@@ -47,10 +64,12 @@ public class Table(Personaje player, Personaje computer)
         }
         else
         {
-            for (int i = 0; i < 7; i++)//Itero el máximo numero de veces posible. Si alguna condicion se cumple la funcion retorna un valor y no habra ningun Null reference
+            var values1 = hand1.GetValuesArray();
+            var values2 = hand2.GetValuesArray();
+            for (int i = 0; i < values1.Length; i++)//Itero el máximo numero de veces posible. Si alguna condicion se cumple la funcion retorna un valor y no habra ningun Null reference
             {
-                if(hand1.HigherValues[i].Key != hand2.HigherValues[i].Key){
-                    if(hand1.HigherValues[i].Key < hand2.HigherValues[i].Key )
+                if(values1[i] != values2[i]){
+                    if(values1[i] < values2[i])
                     {
                         return -1;//Si hand1 < hand2 devuelve -1
                     }

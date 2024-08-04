@@ -38,7 +38,10 @@ public class Personaje{
 
     }
     //Métodos para actuar en la partida.
-
+    public int PayBlind(){
+        if(IsBigBlind) return 20;
+        else return 10; 
+    }
     public int Bet(){
         int.TryParse(Console.ReadLine(), out int bet);
         do
