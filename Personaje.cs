@@ -1,5 +1,6 @@
 using ApiHelper;
 using Cards;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace Personajes{
@@ -9,6 +10,7 @@ public class Personaje{
     private string name;
     private string edad;
     private bool esJugable;
+    private int bank;
     private int luck;
     private int aura;
     private int fish;
@@ -18,13 +20,15 @@ public class Personaje{
     public string Name { get => name; set => name = value; }
     public string Edad { get => edad; set => edad = value; }
     public bool EsJugable { get => esJugable; set => esJugable = value; }
+    public int Bank { get => bank; set => bank = value; }
     public int Luck { get => luck; set => luck = value; }
     public int Aura { get => aura; set => aura = value; }
     public int Fish { get => fish; set => fish = value; }
     public int Cheat { get => cheat; set => cheat = value; }
     public Hand Hand { get => hand; set => hand = value; }
+    public bool IsBigBlind {get; set;} = false;//Uso la propiedad que como default tiene el valor false.
 
-    public Personaje(){
+        public Personaje(){
         var rand = new Random();
         Edad = rand.Next(17,100).ToString();                                                                                                                                                                                                                                                                            ;
         Luck = rand.Next(100);
@@ -32,6 +36,25 @@ public class Personaje{
         Fish = rand.Next(100);
         Cheat = rand.Next(50);
 
+    }
+    //Métodos para actuar en la partida.
+
+    public int Bet(){
+        int.TryParse(Console.ReadLine(), out int bet);
+        do
+        {
+            if(bet == 0) Console.WriteLine("No realizaste una apuesta");
+            else Console.WriteLine("Tu apuesta es mayor a tu dinero disponible.");
+            int.TryParse(Console.ReadLine(), out bet);
+        } while (bet == 0 || bet > bank);
+        bank -= bet;
+        return bet;
+    }
+    public void Call(int bet){
+        bank -= bet;
+    }
+    public void GainPot(int cash){
+        bank += cash;
     }
     
     public void MostrarStats(){
