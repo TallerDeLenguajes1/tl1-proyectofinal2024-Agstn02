@@ -19,14 +19,15 @@ public class Personaje{
 
     public string Name { get => name; set => name = value; }
     public string Edad { get => edad; set => edad = value; }
-    public bool EsJugable { get => esJugable; set => esJugable = value; }
     public int Bank { get => bank; set => bank = value; }
     public int Luck { get => luck; set => luck = value; }
     public int Aura { get => aura; set => aura = value; }
     public int Fish { get => fish; set => fish = value; }
     public int Cheat { get => cheat; set => cheat = value; }
     public Hand Hand { get => hand; set => hand = value; }
+    public bool EsJugable { get => esJugable; set => esJugable = value; }
     public bool IsBigBlind {get; set;} = false;//Uso la propiedad que como default tiene el valor false.
+    public bool IsFolded {get; set;} = false;
 
         public Personaje(){
         var rand = new Random();
@@ -38,23 +39,35 @@ public class Personaje{
 
     }
     //Métodos para actuar en la partida.
-    public int PayBlind(){
-        if(IsBigBlind) return 20;
-        else return 10; 
+    public int PayBlind(int amount){
+        if(IsBigBlind) return amount;
+        else return amount/2; 
     }
-    public int Bet(){
+    public void Fold(){
+        IsFolded = true;
+    }
+    public int Bet(int min){
         int.TryParse(Console.ReadLine(), out int bet);
         do
         {
-            if(bet == 0) Console.WriteLine("No realizaste una apuesta");
+            if(bet == 0) Console.WriteLine($"Tu apuesta debe superar el mínimo (${min})");
             else Console.WriteLine("Tu apuesta es mayor a tu dinero disponible.");
             int.TryParse(Console.ReadLine(), out bet);
-        } while (bet == 0 || bet > bank);
+        } while (bet < min || bet > bank);
         bank -= bet;
         return bet;
     }
-    public void Call(int bet){
+    public int Call(int bet){
+        if(bet > bank){
+            return AllIn();
+        }
         bank -= bet;
+        return bet;
+    }
+    public int AllIn(){
+        int aux = bank;
+        bank = 0;
+        return aux;
     }
     public void GainPot(int cash){
         bank += cash;
