@@ -34,7 +34,10 @@ namespace Cards
     {
         private List<Card> _hand = poket;
         private HandValue value;
+        private KeyValuePair<int, int>[] higherValues;
+        //Props
         public HandValue Value { get => value;}
+        public KeyValuePair<int, int>[] HigherValues { get => higherValues; }
 
         //Métodos:
         //GetCards() añade un rango de cartas a mi lista _hand.
@@ -44,26 +47,10 @@ namespace Cards
         //CountSuits() devuelve un diccionario con la cantidad de cartas de cada suit.
         private Dictionary<string, int> CountSuits(){
             Dictionary<string , int> suits = new();
-            suits.Add("SPADES",0);
-            suits.Add("HEARTS",0);
-            suits.Add("CLUBS",0);
-            suits.Add("DIAMONDS",0);
             foreach (Card item in _hand)
             {
-                switch (item.Suit)
-                {
-                    case "SPADES":
-                    suits["SPADES"] += 1;
-                    break;
-                    case "HEARTS":
-                    suits["HEARTS"] += 1;
-                    break;
-                    case "CLUBS":
-                    suits["CLUBS"] += 1;
-                    break;
-                    case "DIAMONDS":
-                    suits["DIAMONDS"] += 1;
-                    break;
+                if(!suits.TryAdd(item.Suit, 1)){
+                    suits[item.Suit] += 1;
                 }
             }
             return suits;
@@ -72,26 +59,34 @@ namespace Cards
             Dictionary<string, int> values = [];
             foreach (var item in _hand)
             {
-                if(!values.TryAdd(item.Value, 1)){//TryAdd intenta agregar el elemento al diccionario, si el key ya existe, devuelve false;
+                if(!values.TryAdd(item.Value, 1))
+                {
                     values[item.Value] += 1;
                 }
             }
             return values;
         }
+        private int Normalize(string val){
+            return val switch
+            {
+                "JACK" => 11,
+                "QUEEN" => 12,
+                "KING" => 13,
+                "ACE" => 14,
+                _ => int.Parse(val),
+            };
+        }
+        private List<int> NormalizeValues(){
+           List<int> ParsedValues = [];
+           foreach (var item in _hand)
+           {
+            ParsedValues.Add(Normalize(item.Value));
+           }
+            return ParsedValues;
+        }
         private string NormalizeHand(){
             //Creo una Lista de los valores parseados a su valor entero.
-            List<int> ParsedValues = new();
-            for (int i = 0; i < _hand.Count; i++)
-            {
-                ParsedValues.Add( _hand[i].Value switch
-                    {
-                        "JACK" => 11,
-                        "QUEEN" => 12,
-                        "KING" => 13,
-                        "ACE" => 14,
-                        _ => int.Parse(_hand[i].Value),
-                    });
-            }
+            List<int> ParsedValues = NormalizeValues();
             //Ordeno La lista 
             ParsedValues.Sort();
             //Combierto la Lista a un string para poder compararlo facilmente. cheaqueando la posibilidad de que un As pueda usarse como 2.
@@ -99,7 +94,7 @@ namespace Cards
                 //Si existe un As en la mano inserto el valor 14(el as) al principio de esta y puedo asegurarme que al hacer el contain luego, el as ocupe el lugar de 1 y 14 simultaneamente. Como solo voy a evaluar patrones de 5 caracteres no afecta de ninguna manera.
                 ParsedValues.Insert(0,14);
             }
-            return ParsedValues.ToString(); 
+            return ParsedValues.ToString();
         }
         private bool IsStraight(){
             var StringValues = NormalizeHand();
@@ -128,10 +123,40 @@ namespace Cards
             }
             return false;
         }
-        
+        private void SetHigherValues(Dictionary<string, int> valuePairs){//Se usa para comparar en caso de que ambos jugadores tengan la misma mano.
+            //Esta funcion crea un array de KVP de la siguiente manera
+            Dictionary<int, int> casted = new();//Creo un nuevo dictionary que con el tipo <int , int>
+            foreach (var item in valuePairs)
+            {
+                casted[Normalize(item.Key)] = item.Value;//uso la func Normalize() para transformar el Key a su valor correspondiente.
+            }
+            var arrKeyVal = casted.OrderByDescending(itm => itm.Value)//Ordena de forma descendiente segun los valores.
+                            .ThenByDescending(itm => itm.Key)//Como criterio secundario usará el valor de la Key (El valor de la carta)
+                            .ToArray();//Transformo en un array.
+            higherValues = arrKeyVal;
+        }
+        public int[] GetValuesArray(){//uso una funcion para devolver los valores ordenados por cantidad de aparicion y valor de carta.
+            int[] valuesArray = new int[7];//Siempre obtendré 7 elementos.
+            int j = 0; // Uso un index externo para poder armar mi array
+            foreach (var pair in higherValues)
+            {
+                int i = 0;
+                while( i < pair.Value)
+                {
+                    valuesArray[j+i] = pair.Key;
+                    i++;
+                }
+                j += i;
+            }
+            return valuesArray;
+        }
+
         public void DefineValue(){
             var suits = CountSuits();
-            var ValuesDic = CountValues();
+            var HigerValues = CountValues();// Cuenta la cantidad de valores repetidos y los inserta en la prop HigherValues.
+            SetHigherValues(HigerValues);
+            int[] pureba = GetValuesArray();
+
             bool IsFlushed = suits.ContainsValue(5) | suits.ContainsValue(6) | suits.ContainsValue(7);
             if(IsStraight()){ // Posible escalera real, escalera de color o escalera
                 if(IsFlushed)
@@ -153,13 +178,13 @@ namespace Cards
             else //Resto de jugadas.
             {
                 //Puede ser cualquier jugada que no involucre los suits excepto color, y amerita evaluar los valores de las cartas.
-                if(ValuesDic.ContainsValue(4))//Hay un poker
+                if(HigerValues.ContainsValue(4))//Hay un poker
                 {
                     value = HandValue.Poquer;
                 }
-                else if (ValuesDic.ContainsValue(3)) //Hay full o trio.(o color)  
+                else if (HigerValues.ContainsValue(3)) //Hay full o trio.(o color)  
                 {
-                    if(ValuesDic.ContainsValue(2)){ //Si ademas de contener 3, contiene 2 => Es FullHouse.
+                    if(HigerValues.ContainsValue(2)){ //Si ademas de contener 3, contiene 2 => Es FullHouse.
                         value = HandValue.FullHouse;
                     }
                     else if (IsFlushed) //Es color
@@ -171,10 +196,10 @@ namespace Cards
                         value = HandValue.Trio;
                     }
                 }
-                else if(ValuesDic.ContainsValue(2))//Hay par o doble par. (o color).
+                else if(HigerValues.ContainsValue(2))//Hay par o doble par. (o color).
                 {
                     int pairs = 0;
-                    foreach (var value in ValuesDic.Values) //Cuento la cantidad de Pares que hay. Si hay dos o mas entoces hay doble par.
+                    foreach (var value in HigerValues.Values) //Cuento la cantidad de Pares que hay. Si hay dos o mas entoces hay doble par.
                     {
                         if(value == 2 ){
                             pairs++;
@@ -204,7 +229,6 @@ namespace Cards
                     }
                 }
             }
-
         }
         //Show() muestra los valores de cada carta.
         public void Show(){
