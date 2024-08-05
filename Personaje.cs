@@ -51,7 +51,7 @@ public class Personaje{
     }
     public virtual int Bet(int min){
         Console.Write("ingresa el monto de tu apuesta:");
-        int.TryParse(Console.ReadLine(), out int bet);
+        int bet = -1;
         do
         {
             if(bet == 0) Console.WriteLine($"No puedes apostar $0. Avíspese!");
@@ -158,25 +158,29 @@ public class FabricaDePersonajes{
 }
 
 public class PersonajesJson{
-    public bool Existe(string ruta){
+    public static bool Existe(string ruta){
         var existe = File.Exists(ruta);
         return existe;
     }
-    public void GuardarPersonajes(List<Personaje> lista, string ruta){
+    public static void GuardarPersonajes(List<Personaje> lista, string ruta){
         if(!Existe(ruta)){ //Si el archivo no existe lo crea.
-            File.Create(ruta);
-        }
-
-        foreach (Personaje pj in lista)// para cada personaje en la lista se transforma en json y se escribe en el archivo recibido 
-        {
-            string personaje = JsonSerializer.Serialize(pj);
+                using StreamWriter sw = File.CreateText(ruta);
+                sw.Write("");
+            }
+            string personaje = JsonSerializer.Serialize(lista);
             File.WriteAllText(ruta,personaje);// Quiza tenga que usar append.
-        }
     }
-    public List<Personaje> LeerPersonajes(string ruta){
-        var personajes  = File.ReadAllText(ruta);
-        var lista = JsonSerializer.Deserialize<List<Personaje>>(personajes);
-        return lista;
+    public static List<Personaje> LeerPersonajes(string ruta){
+        if(!Existe(ruta)){
+            return [];
+        }
+        else
+        {
+            var personajes  = File.ReadAllText(ruta);
+            var lista = JsonSerializer.Deserialize<List<Personaje>>(personajes);
+            return lista;
+
+        }
     }
 }
 

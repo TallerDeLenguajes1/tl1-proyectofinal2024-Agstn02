@@ -15,7 +15,7 @@ public class Round(Personaje player, Npc computer, Deck cards){
     private const int BigBlind = 50;
     public Deck Deck {get;} = cards;
     public int Pot {get; set;}
-    public int Winner;
+    public string Winner;
 //Metodos:
     public void BettingRound(){
         int minRaise = BigBlind/2;
@@ -31,7 +31,9 @@ public class Round(Personaje player, Npc computer, Deck cards){
                     int action;
                     do
                     {//Menú de Opciones para el juego.
+                    Console.WriteLine("----------PoketCards----------");
                     pla.Hand.Show();
+                    Console.WriteLine("----------------------------------------");
                     Console.WriteLine($"1 - Call   | 2 - Bet   | 3 - Check   | 4 - Fold  |           Fichas: ${pla.Bank}");
                         _ = int.TryParse(Console.ReadLine(), out action);
                         switch (action)
@@ -89,6 +91,13 @@ public class Round(Personaje player, Npc computer, Deck cards){
                                 int aux = com.Call(lastBet);//Iguala la apuesta
                                 lastBet = aux;//LastBet se actualiza
                                 Pot += aux;//Actualizo el pot
+                            }
+                            else if(com.CurrentBet < (BigBlind * 0.5 * (1 + (com.Aura - com.Caution) * .01) ))
+                            {
+                                int aux = com.Bet(lastBet);//Sube la apuesta
+                                    Console.WriteLine($"{com.Name} sube ${aux}");
+                                    lastBet = aux;//LastBet se actualiza
+                                    Pot += aux;//Actualizo el pot
                             }
                             else
                             {
@@ -184,6 +193,9 @@ public class Round(Personaje player, Npc computer, Deck cards){
 
     public void PreFlop(){
         //0. Recolectar ciegas
+        Console.WriteLine("----------------------------------------");
+        Console.WriteLine("Pago de ciegas");
+        Console.WriteLine("----------------------------------------");
         if(pla.IsBigBlind){
             Pot += pla.PayBlind(BigBlind);
             Pot += com.PayBlind(BigBlind/2);
@@ -200,6 +212,8 @@ public class Round(Personaje player, Npc computer, Deck cards){
             com.CalcRelativeStrenght(pla);
         //2. Ronda de apuestas.
             BettingRound();
+        Console.WriteLine("---------- Flop ----------");
+
     }
     public void Flop(){
         if(pla.IsFolded || com.IsFolded) return;
@@ -219,6 +233,8 @@ public class Round(Personaje player, Npc computer, Deck cards){
         {
             BettingRound();
         }
+        Console.WriteLine("---------- Turn ----------");
+
     }
     public void Turn(){
         if(pla.IsFolded || com.IsFolded) return;
@@ -240,6 +256,8 @@ public class Round(Personaje player, Npc computer, Deck cards){
         {
             BettingRound();
         }
+        Console.WriteLine("---------- River ----------");
+
     }
     public void River(){
         if(pla.IsFolded || com.IsFolded) return;
@@ -261,26 +279,35 @@ public class Round(Personaje player, Npc computer, Deck cards){
         {
             BettingRound();
         }
+        Console.WriteLine("----------------------------------------");
         
     }
     public void DefineWinner()
-    {
+    {   
+        if(com.IsFolded){
+            Winner = pla.Name;
+        }
+        else if(pla.IsFolded){
+            Winner = com.Name;
+        }
+        else
+        {
         pla.Hand.DefineValue();
         var winner = CompareHands(pla.Hand, com.Hand);// 1 player | -1 npc
         switch (winner)
         {
             case 1:
                 pla.CashPot(Pot);
-                Winner = 1;
+                Winner = pla.Name;
                 break;
             case -1:
                 com.CashPot(Pot);
-                Winner = -1;
+                Winner = com.Name;
                 break;
             default://las manos son exactamente iguales - el pot se divide entre ambos
                 pla.CashPot(Pot/2);
                 com.CashPot(Pot/2);
-                Winner = 0;
+                Winner = "tie";
                 break;
         }
         //Muestro las manos
@@ -293,9 +320,11 @@ public class Round(Personaje player, Npc computer, Deck cards){
         pla.Hand.Show();
         Console.WriteLine($"Mano de {pla.Name}: ");
         Console.WriteLine("----------------------------------------");
+        Console.WriteLine($"Ganador: {Winner}");
         //Invierto las ciegas
         if(pla.IsBigBlind) pla.IsBigBlind = false;
         else pla.IsBigBlind = true;
+    }
     }
 
     private int CompareHands(Hand hand1 , Hand hand2){
@@ -348,13 +377,14 @@ public class Table(Personaje player, Npc computer, List<Round> list)
         public async Task PlayRound(){
         await Deck.Shuffle();
         var round = new Round(player, comp, Deck);
-        
+        Console.WriteLine("----------------------------------------");
         round.PreFlop();
         round.Flop();
         round.Turn();
         round.River();
         round.DefineWinner();
         roundList.Add(round);
+        Console.WriteLine("----------------------------------------");
     }
     public void Result(){
         if(player.Bank <= 0){

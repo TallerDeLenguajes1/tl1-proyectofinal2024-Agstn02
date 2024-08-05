@@ -20,15 +20,18 @@ public class HistorialJson{
         if(!Existe(ruta)){
             Console.WriteLine("Historial de partidas vacío.");
         }
-        var lista = JsonSerializer.Deserialize<List<Table>>(ruta);
-        int index = 1;
-        Console.WriteLine($"Historial de ganadores:");
-        foreach(var item in lista){
-            Console.WriteLine($"---------- {index} ----------");
-            Console.WriteLine("Ganador:");
-            item.Player.MostrarStats();
+        else
+        {
+            var lista = JsonSerializer.Deserialize<List<Table>>(ruta);
+            int index = 1;
+            Console.WriteLine($"Historial de ganadores:");
+            foreach(var item in lista){
+                Console.WriteLine($"---------- {index} ----------");
+                Console.WriteLine("Ganador:");
+                item.Player.MostrarStats();
         }
         
+        }
     }
 }
 }
