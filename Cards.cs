@@ -13,17 +13,17 @@ namespace Cards
         public string Suit { get => suit; set => suit = value; }
     }
     //Enum de Values Para compararlos:
-    public enum HandValue {
-        CartaAlta,
-        Par,
-        DoblePar,
-        Trio,
-        Escalera,
-        Color,
-        FullHouse,
-        Poquer,
-        EscaleraColor,
-        EscaleraReal
+    public static class HandValue{
+        public const double CartaAlta = 49.883;
+        public const double Par = 57.743;
+        public const double DoblePar = 95.241;
+        public const double Trio = 97.889;
+        public const double Escalera = 99.608;
+        public const double Color = 99.805;
+        public const double FullHouse = 99.856;
+        public const double Poquer = 99.976;
+        public const double EscaleraColor = 99.99862;
+        public const double EscaleraReal = 99.999864;
     }
     //Uso la clase PokerStraights para poder deserializar el resultado en json desde el archivo en la carpeta assets.
     public class PokerStraight{
@@ -33,10 +33,10 @@ namespace Cards
     public class Hand(List<Card> poket)
     {
         private List<Card> _hand = poket;
-        private HandValue value;
+        private double value;
         private KeyValuePair<int, int>[] higherValues;
         //Props
-        public HandValue Value { get => value;}
+        public double Value { get => value;}
         public KeyValuePair<int, int>[] HigherValues { get => higherValues; }
 
         //Métodos:

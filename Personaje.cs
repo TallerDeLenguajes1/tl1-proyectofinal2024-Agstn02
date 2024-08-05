@@ -8,34 +8,32 @@ namespace Personajes{
 //Jugador - A priori no habrán grandes cambios. 
 public class Personaje{
     private string name;
-    private string edad;
     private bool esJugable;
     private int bank;
-    private int luck;
-    private int aura;
-    private int fish;
-    private int cheat;
+    private float aura;
+    private float tells;
+    private float luck;
+    private float cheat;
     private Hand hand;
 
     public string Name { get => name; set => name = value; }
-    public string Edad { get => edad; set => edad = value; }
     public int Bank { get => bank; set => bank = value; }
-    public int Luck { get => luck; set => luck = value; }
-    public int Aura { get => aura; set => aura = value; }
-    public int Fish { get => fish; set => fish = value; }
-    public int Cheat { get => cheat; set => cheat = value; }
+    public float Aura { get => aura; set => aura = value; }
+    public float Tells { get => tells; set => tells = value; }
+    public float Cheat { get => cheat; set => cheat = value; }
+    public float Luck { get => luck; set => luck = value; }
     public Hand Hand { get => hand; set => hand = value; }
+    public int CurrentBet { get; set;}
     public bool EsJugable { get => esJugable; set => esJugable = value; }
-    public bool IsBigBlind {get; set;} = false;//Uso la propiedad que como default tiene el valor false.
+    public bool IsBigBlind {get; set;} = false;
     public bool IsFolded {get; set;} = false;
 
         public Personaje(){
         var rand = new Random();
-        Edad = rand.Next(17,100).ToString();                                                                                                                                                                                                                                                                            ;
-        Luck = rand.Next(100);
         Aura = rand.Next(100);
-        Fish = rand.Next(100);
+        Tells = rand.Next(100);
         Cheat = rand.Next(50);
+        Luck = rand.Next(100);
 
     }
     //Métodos para actuar en la partida.
@@ -55,6 +53,7 @@ public class Personaje{
             int.TryParse(Console.ReadLine(), out bet);
         } while (bet < min || bet > bank);
         bank -= bet;
+        CurrentBet += bet;
         return bet;
     }
     public int Call(int bet){
@@ -62,6 +61,7 @@ public class Personaje{
             return AllIn();
         }
         bank -= bet;
+        CurrentBet += bet;
         return bet;
     }
     public int AllIn(){
@@ -69,17 +69,16 @@ public class Personaje{
         bank = 0;
         return aux;
     }
-    public void GainPot(int cash){
+    public void CashPot(int cash){
         bank += cash;
     }
     
     public void MostrarStats(){
         Console.WriteLine("Nombre:" + Name);
-        Console.WriteLine("Edad:" + Edad);
         Console.WriteLine("Es jugable?:" + EsJugable);
         Console.WriteLine("Suerte:" + Luck);
         Console.WriteLine("Aura:" + Aura);
-        Console.WriteLine("Fish:" + Fish);
+        Console.WriteLine("tells:" + tells);
         Console.WriteLine("Trampa:" + Cheat);
         Console.WriteLine("Mano:");
         hand.Show();
@@ -87,6 +86,26 @@ public class Personaje{
     //Todo: Implementar una habilidad, de una lista de habilidades, como metodos en cada instancia. Implementarlo a través de ExtensionMethods
 }
 
+public class Npc : Personaje {
+
+    public int handStrenght;
+
+    public Npc(Personaje p){
+        Name = p.Name;
+        Aura = p.Aura;
+        Tells = p.Tells;
+        Cheat = p.Cheat;
+        Luck = p.Luck;
+    }
+
+    public void CalcRelativeStrenght(){
+        int Ahs = (int) Hand.Value * 10;//Abs : Absolute Hand Strenght
+        
+
+
+
+    }
+}
 //Clase Fabrica de Personajes.
 public class FabricaDePersonajes{
 
