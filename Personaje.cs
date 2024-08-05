@@ -11,17 +11,21 @@ public class Personaje{
     private bool esJugable;
     private int bank;
     private float aura;
-    private float tells;
-    private float luck;
+    private float caution;
     private float cheat;
+    private float luck;
+    private float mind;
+    private float tells;
     private Hand hand;
 
     public string Name { get => name; set => name = value; }
     public int Bank { get => bank; set => bank = value; }
     public float Aura { get => aura; set => aura = value; }
-    public float Tells { get => tells; set => tells = value; }
+    public float Caution { get => caution; set => caution = value; }
     public float Cheat { get => cheat; set => cheat = value; }
     public float Luck { get => luck; set => luck = value; }
+    public float Mind { get => mind; set => mind = value; }
+    public float Tells { get => tells; set => tells = value; }
     public Hand Hand { get => hand; set => hand = value; }
     public int CurrentBet { get; set;}
     public bool EsJugable { get => esJugable; set => esJugable = value; }
@@ -93,17 +97,20 @@ public class Npc : Personaje {
     public Npc(Personaje p){
         Name = p.Name;
         Aura = p.Aura;
-        Tells = p.Tells;
+        Caution = p.Caution;
         Cheat = p.Cheat;
         Luck = p.Luck;
+        Mind = p.Mind;
+        Tells = p.Tells;
     }
 
-    public void CalcRelativeStrenght(){
-        int Ahs = (int) Hand.Value * 10;//Abs : Absolute Hand Strenght
+    public double CalcRelativeStrenght(Personaje rival){
+        double Ahs = Hand.Value;//Abs : Absolute Hand Strenght
+        double TendsAgrro = ((Aura * Mind * 0.05 ) + (rival.Tells * (Mind * 0.04)) + (Luck * 0.7)) * 0.001;
+        double TendsPasive = (rival.Aura * (Caution * Mind * 0.03) * .01 + Tells * Mind * 0.02  ) * .001;
+        double descitionRatio = 0.5 + (TendsAgrro - TendsPasive);// Debe ser un numero entre 0,5 y 1,5
         
-
-
-
+        return Ahs * descitionRatio;
     }
 }
 //Clase Fabrica de Personajes.
