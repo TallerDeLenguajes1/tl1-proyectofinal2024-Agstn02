@@ -1,13 +1,18 @@
 ﻿using Personajes;
 using GameItems;
 using Historial;
-using System.Text.Json;
-
+Console.Title = "Hold'Em";
+Console.WindowHeight = 400;
+Console.WindowWidth = 600;
 
 //Implementar menú
 int val = 0;
 string rutaHistorial = Directory.GetCurrentDirectory() + "/historial.json";
 string rutaPersonajes = Directory.GetCurrentDirectory() + "/personajes.json";
+    Console.WriteLine("----------------------------------------");
+    Console.WriteLine("         Bienvenido a Hold'Em");
+    Console.WriteLine("----------------------------------------");
+
 do{
     Console.WriteLine(" 1 - Jugar   | 2 - Leer Historial ");
     int.TryParse(Console.ReadLine(), out val);
@@ -53,6 +58,7 @@ foreach (var item in personajes)
 List<Table> tableList = [];
 //gameloop
 do{
+    Console.Clear();
     foreach (var item in Rivales)
     {
         Console.WriteLine($"---------- {MiPersonaje.Name} vs- {item.Name} ----------");

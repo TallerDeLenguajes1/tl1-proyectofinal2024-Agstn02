@@ -286,9 +286,11 @@ public class Round(Personaje player, Npc computer, Deck cards){
     {   
         if(com.IsFolded){
             Winner = pla.Name;
+            com.IsFolded = false;
         }
         else if(pla.IsFolded){
             Winner = com.Name;
+            pla.IsFolded = false;
         }
         else
         {
