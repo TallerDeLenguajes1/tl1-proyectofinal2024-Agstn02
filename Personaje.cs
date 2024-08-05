@@ -9,12 +9,12 @@ namespace Personajes{
 public class Personaje{
     private string name;
     private int bank = 500;
-    private float aura;
-    private float caution;
-    private float cheat;
-    private float luck;
-    private float mind;
-    private float tells;
+    private float aura;//Intimidacion
+    private float caution;//Precaucion
+    private float cheat;//Trampa
+    private float luck;//Suerte
+    private float mind;//Estrategia
+    private float tells;//Gestualidad
     private Hand hand;
 
     public string Name { get => name; set => name = value; }
@@ -38,7 +38,6 @@ public class Personaje{
         Luck = rand.Next(10,100);
         Mind = rand.Next(10,100);
         Tells = rand.Next(100);
-
     }
     //Métodos para actuar en la partida.
     public int PayBlind(int amount){

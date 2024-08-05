@@ -25,7 +25,6 @@ public class Round(Personaje player, Npc computer, Deck cards){
 
         while(!roundFinished)
         {
-            //Debo iterar entre los dos jugadores mientras no hayan foldeado o no se haya igualado las apuestas.
                 if(button % 2 == 1)
                 {
                     int action;
@@ -190,7 +189,6 @@ public class Round(Personaje player, Npc computer, Deck cards){
                 }
             }
     }
-
     public void PreFlop(){
         //0. Recolectar ciegas
         Console.WriteLine("----------------------------------------");
