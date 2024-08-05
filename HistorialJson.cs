@@ -14,7 +14,10 @@ public class HistorialJson{
         }
 
         string ganadorJson = JsonSerializer.Serialize(game);
-        File.WriteAllText(ruta, ganadorJson);
+        using (StreamWriter sw = File.AppendText(ruta))
+        {
+            sw.WriteLine(ganadorJson);
+        }	
     }
     public static void LeerHistorial(string ruta){
         if(!Existe(ruta)){

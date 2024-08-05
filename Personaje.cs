@@ -81,7 +81,7 @@ public class Personaje{
     
     public void MostrarStats(){
         Console.WriteLine("Nombre:" + Name);
-        Console.WriteLine("Aura:" + Aura);
+        Console.WriteLine("Intimidación:" + Aura);
         Console.WriteLine("Precaución:" + Caution);
         Console.WriteLine("Suerte:" + Luck);
         Console.WriteLine("Gestos:" + tells);
@@ -90,9 +90,9 @@ public class Personaje{
 }
 
 public class Npc : Personaje {
-
+    //Props
     public double HandStrenght { get ; set; }
-
+    //Constructor.
     public Npc(Personaje p){
         Name = p.Name;
         Aura = p.Aura;
@@ -102,7 +102,7 @@ public class Npc : Personaje {
         Mind = p.Mind;
         Tells = p.Tells;
     }
-
+    //metodos
     public void CalcRelativeStrenght(Personaje rival){
         Hand.DefineValue();
         double Ahs = Hand.Value;//Abs : Absolute Hand Strenght
@@ -129,8 +129,6 @@ public class Npc : Personaje {
 }
 //Clase Fabrica de Personajes.
 public class FabricaDePersonajes{
-
-    //TODO crear un metodo para crear 1 personaje y usarlo en el metodo estático.
     //Método estatico para crear una lista de personajes.
     public static async Task<List<Personaje>> CrearListaPersonajes(int n){
         //Ver la forma de que no me caguen las opciones del serializer 
