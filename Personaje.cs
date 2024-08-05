@@ -8,8 +8,7 @@ namespace Personajes{
 //Jugador - A priori no habrán grandes cambios. 
 public class Personaje{
     private string name;
-    private bool esJugable;
-    private int bank;
+    private int bank = 500;
     private float aura;
     private float caution;
     private float cheat;
@@ -19,7 +18,7 @@ public class Personaje{
     private Hand hand;
 
     public string Name { get => name; set => name = value; }
-    public int Bank { get => bank; set => bank = value; }
+    public int Bank { get => bank; set => bank = value; } 
     public float Aura { get => aura; set => aura = value; }
     public float Caution { get => caution; set => caution = value; }
     public float Cheat { get => cheat; set => cheat = value; }
@@ -28,27 +27,28 @@ public class Personaje{
     public float Tells { get => tells; set => tells = value; }
     public Hand Hand { get => hand; set => hand = value; }
     public int CurrentBet { get; set;}
-    public bool EsJugable { get => esJugable; set => esJugable = value; }
     public bool IsBigBlind {get; set;} = false;
     public bool IsFolded {get; set;} = false;
 
         public Personaje(){
         var rand = new Random();
-        Aura = rand.Next(100);
+        Aura = rand.Next(10, 100);
+        Caution = rand.Next(10,100);
+        Cheat = rand.Next(5,50);
+        Luck = rand.Next(10,100);
+        Mind = rand.Next(10,100);
         Tells = rand.Next(100);
-        Cheat = rand.Next(50);
-        Luck = rand.Next(100);
 
     }
     //Métodos para actuar en la partida.
     public int PayBlind(int amount){
-        if(IsBigBlind) return amount;
-        else return amount/2; 
+        bank -= amount;
+        return amount;
     }
     public void Fold(){
         IsFolded = true;
     }
-    public int Bet(int min){
+    public virtual int Bet(int min){
         int.TryParse(Console.ReadLine(), out int bet);
         do
         {
@@ -79,15 +79,12 @@ public class Personaje{
     
     public void MostrarStats(){
         Console.WriteLine("Nombre:" + Name);
-        Console.WriteLine("Es jugable?:" + EsJugable);
-        Console.WriteLine("Suerte:" + Luck);
         Console.WriteLine("Aura:" + Aura);
-        Console.WriteLine("tells:" + tells);
+        Console.WriteLine("Precaución:" + Caution);
+        Console.WriteLine("Suerte:" + Luck);
+        Console.WriteLine("Gestos:" + tells);
         Console.WriteLine("Trampa:" + Cheat);
-        Console.WriteLine("Mano:");
-        hand.Show();
     }
-    //Todo: Implementar una habilidad, de una lista de habilidades, como metodos en cada instancia. Implementarlo a través de ExtensionMethods
 }
 
 public class Npc : Personaje {
@@ -115,6 +112,17 @@ public class Npc : Personaje {
         //Tomaremos como manos debiles desde Min hasta 58.
         //Manos regulares desde 58 hasta 99 (Totalmente arbitrario).
         //Manos buenas > 99.
+    }
+    public override int Bet(int min){
+        var rand = new Random();
+        int bet = min;
+        do
+        {
+            bet = min * rand.Next(2,3);
+        } while (bet > Bank);
+        Bank -= bet;
+        CurrentBet += bet;
+        return bet;
     }
 }
 //Clase Fabrica de Personajes.

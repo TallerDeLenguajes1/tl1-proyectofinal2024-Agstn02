@@ -4,7 +4,7 @@ using Cards;
 using Personajes;
 
 
-namespace Table{
+namespace GameItems{
 
 public class Round(Personaje player, Npc computer){
     // Almacena datos de cada ronda y maneja los eventos
@@ -15,6 +15,7 @@ public class Round(Personaje player, Npc computer){
     private const int BigBlind = 50;
     public Deck Deck {get;} = new Deck();
     public int Pot {get; set;}
+    public int Winner;
 //Metodos:
     public void BettingRound(){
         Pot = 0;
@@ -172,13 +173,13 @@ public class Round(Personaje player, Npc computer){
     public void PreFlop(){
         //0. Recolectar ciegas
         if(pla.IsBigBlind){
-            pla.PayBlind(BigBlind);
-            com.PayBlind(BigBlind/2);
+            Pot = pla.PayBlind(BigBlind);
+            Pot = com.PayBlind(BigBlind/2);
         }
         else
         {
-            pla.PayBlind(BigBlind/2);
-            com.PayBlind(BigBlind);
+            Pot = pla.PayBlind(BigBlind/2);
+            Pot = com.PayBlind(BigBlind);
         }
         //1. Repartir las cartas a cada jugador
             pla.Hand = new Hand(Deck.DealPoket());
@@ -187,6 +188,7 @@ public class Round(Personaje player, Npc computer){
             BettingRound();
     }
     public void Flop(){
+        if(pla.IsFolded || com.IsFolded) return;
         //Repartir las tres cartas a mesa.
         table = Deck.DealFlop();
         pla.Hand.GetCards(table);
@@ -198,9 +200,13 @@ public class Round(Personaje player, Npc computer){
             Console.WriteLine($"|{item.Code}|");
         }
         //Ronda de apuestas.
-        BettingRound();
+        if(pla.Bank > 0 && com.Bank > 0)//si ninguno fue allin
+        {
+            BettingRound();
+        }
     }
     public void Turn(){
+        if(pla.IsFolded || com.IsFolded) return;
         //Repartir una carta mas
         var turn = Deck.Deal();
         table.Add(turn);
@@ -208,36 +214,51 @@ public class Round(Personaje player, Npc computer){
         pla.Hand.GetCard(turn);
         com.Hand.GetCard(turn);
         //Ronda de apuestas
-        BettingRound();
+        if(pla.Bank > 0 && com.Bank > 0)//si ninguno fue allin
+        {
+            BettingRound();
+        }
     }
     public void River(){
+        if(pla.IsFolded || com.IsFolded) return;
         //Repartir una carta mas
-        var turn = Deck.Deal();
-        table.Add(turn);
+        var river = Deck.Deal();
+        table.Add(river);
         //Las añado a la mano
-        pla.Hand.GetCard(turn);
-        com.Hand.GetCard(turn);
+        pla.Hand.GetCard(river);
+        com.Hand.GetCard(river);
         //Ultima ronda de apuestas
-        BettingRound();
+        if(pla.Bank > 0 && com.Bank > 0)//si ninguno fue allin
+        {
+            BettingRound();
+        }
+        
+    }
+    public void DefineWinner()
+    {
         pla.Hand.DefineValue();
         var winner = CompareHands(pla.Hand, com.Hand);// 1 player | -1 npc
         switch (winner)
         {
             case 1:
                 pla.CashPot(Pot);
+                Winner = 1;
                 break;
             case -1:
                 com.CashPot(Pot);
+                Winner = -1;
                 break;
             default://las manos son exactamente iguales - el pot se divide entre ambos
                 pla.CashPot(Pot/2);
                 com.CashPot(Pot/2);
+                Winner = 0;
                 break;
         }
+        if(pla.IsBigBlind) pla.IsBigBlind = false;
+        else pla.IsBigBlind = true;
     }
 
-
-     private int CompareHands(Hand hand1 , Hand hand2){
+    private int CompareHands(Hand hand1 , Hand hand2){
         if (hand1.Value > hand2.Value)//compara los valores del Tipo Handvalue
         {
             return 1;//Si hand1 > hand2 devuelve 1
@@ -274,29 +295,24 @@ public class Table(Personaje player, Npc computer)
     private Personaje player = player;
     private Npc comp = computer;
     private List<Round> roundList;
-    public string Winner;
+    public bool PlayerWin { get; set;} = false;
+    public bool PlayerDefeat  { get ; set ;} = false;
     //Porpiedades
     //Métodos.
-    public void StartRound(){
+    public void PlayRound(){
         var round = new Round(player, comp);
-        //una vez iniciado el round:
-        //3. Repartir el resto de cartas, pero solo mostrar el flop
         
-        //4. Ronda de apuestas.
-
-        //5. Mostrar el turn.
-
-        //6.Rona de apuestas.
-
-        //7.Muestro el river.
-
-        //8.Ronda de apuestas.
-
-        //9.Mostrar ganador.       
-        
+        round.PreFlop();
+        round.Flop();
+        round.Turn();
+        round.River();
+        round.DefineWinner();
         roundList.Add(round);
     }
-   
+    public void Result(){
+        if(player.Bank <= 0) PlayerDefeat = true;
+        if(comp.Bank <= 0) PlayerWin = true;
+    }
 }
 
 }
