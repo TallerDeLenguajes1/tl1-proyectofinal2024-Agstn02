@@ -92,7 +92,7 @@ public class Personaje{
 
 public class Npc : Personaje {
 
-    public int handStrenght;
+    public double HandStrenght { get ; set; }
 
     public Npc(Personaje p){
         Name = p.Name;
@@ -104,13 +104,17 @@ public class Npc : Personaje {
         Tells = p.Tells;
     }
 
-    public double CalcRelativeStrenght(Personaje rival){
+    public void CalcRelativeStrenght(Personaje rival){
+        Hand.DefineValue();
         double Ahs = Hand.Value;//Abs : Absolute Hand Strenght
-        double TendsAgrro = ((Aura * Mind * 0.05 ) + (rival.Tells * (Mind * 0.04)) + (Luck * 0.7)) * 0.001;
-        double TendsPasive = (rival.Aura * (Caution * Mind * 0.03) * .01 + Tells * Mind * 0.02  ) * .001;
-        double descitionRatio = 0.5 + (TendsAgrro - TendsPasive);// Debe ser un numero entre 0,5 y 1,5
+        double TendsAgrro = 0.2 + ((Aura * Mind * 0.05 ) + (rival.Tells * (Mind * 0.02)) + (Luck * 0.15)) * 0.001;//max .91 - min .216
+        double TendsPasive = 0.1 +(rival.Aura * (Caution * Mind * 0.03) * .01 + Tells * Mind * 0.01 ) * .001;//max .5 - min .140
+        double descitionRatio = 0.5 + (TendsAgrro - TendsPasive);// Debe ser un numero entre 0,5 y 1
         
-        return Ahs * descitionRatio;
+        HandStrenght = Ahs * descitionRatio;//Max 126.99(...) - Min 10.77(...)
+        //Tomaremos como manos debiles desde Min hasta 58.
+        //Manos regulares desde 58 hasta 99 (Totalmente arbitrario).
+        //Manos buenas > 99.
     }
 }
 //Clase Fabrica de Personajes.

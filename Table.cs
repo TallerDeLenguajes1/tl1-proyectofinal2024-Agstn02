@@ -6,13 +6,14 @@ using Personajes;
 
 namespace Table{
 
-public class Round{
+public class Round(Personaje player, Npc computer){
     // Almacena datos de cada ronda y maneja los eventos
 //Propiedades
-    public int BigBlind {get; set;}
-    public int[] Bets {get; set;}
+    private Personaje pla = player;
+    private Npc com = computer;
+    private List<Card> table;
+    private const int BigBlind = 50;
     public Deck Deck {get;} = new Deck();
-    public List<Personaje> Players {get; set;}
     public int Pot {get; set;}
 //Metodos:
     public void BettingRound(){
@@ -20,14 +21,12 @@ public class Round{
         int minRaise = BigBlind;
         int lastBet = 0;
         bool roundFinished = false;
+        int button = pla.IsBigBlind ? 0 : 1;
 
         while(!roundFinished)
         {
             //Debo iterar entre los dos jugadores mientras no hayan foldeado o no se haya igualado las apuestas.
-            for (int i = 0; i < Players.Count; i++)
-            {
-                Personaje player = Players[i];
-                if(player.EsJugable)
+                if(button % 2 == 0)
                 {
                     int action;
                     do
@@ -36,12 +35,12 @@ public class Round{
                         switch (action)
                         {
                             case 1://Call.
-                                lastBet = player.Call(minRaise);
+                                lastBet = pla.Call(minRaise);
                                 Pot += lastBet;
                                 //Mostrar que el jugador calleo
                             break;
                             case 2://Bet.
-                                lastBet = player.Bet(minRaise * 2);
+                                lastBet = pla.Bet(minRaise * 2);
                                 Pot += lastBet;
                                 //Mostrar que el jugador apostó
                             break;
@@ -52,68 +51,193 @@ public class Round{
                                 //mostrar que el jugador pasa
                             break;
                             case 4://Fold
-                                player.Fold();
+                                pla.Fold();
                                 //mostrar que el jugador foldea
                             break;
                         }
                     } while (action < 1 || action > 5);
                 }
-                else
+                else//Logica de NPC basado en su handValue
                 {
-                    player.NpcAlgoritm();
+                    if (com.HandStrenght < 48)// en manos debiles
+                    {
+                        if(com.CurrentBet < Pot)//Si el jugador hizo un raise
+                        {
+                            if(lastBet * 2 > com.Bank){
+                                com.Fold();
+                            }
+                            else
+                            {
+                                int aux = com.Call(lastBet);//Iguala la apuesta
+                                lastBet = aux;//LastBet se actualiza
+                                Pot += aux;//Actualizo el pot
+                            }
+                        }
+                    }
+                    else if(com.HandStrenght < 99)//En manos regulares 
+                    {
+                        var rand = new Random();
+                        double plus = rand.NextDouble() * 10;// Aleatoriza el juego.
+                        if(com.HandStrenght + plus < 68)//Si tiene una buena mano regular.
+                        {
+                            if(com.CurrentBet < Pot)
+                            {
+                                int aux = com.Call(lastBet);//Iguala la apuesta
+                                lastBet = aux;//LastBet se actualiza
+                                Pot += aux;//Actualizo el pot
+                            }
+                            else
+                            {
+                             //El npc checks   
+                            }
+                        }
+                        else if(com.HandStrenght + plus < 98)//Si tiene una muy buena mano regular
+                        {
+                            if(com.CurrentBet < Pot)
+                            {
+                                if(com.Aura < 80){
+                                    int aux = com.Call(lastBet);//Iguala la apuesta
+                                    lastBet = aux;//LastBet se actualiza
+                                    Pot += aux;//Actualizo el pot
+                                }
+                                else
+                                {
+                                    int aux = com.Bet(lastBet);//Sube la apuesta
+                                    lastBet = aux;//LastBet se actualiza
+                                    Pot += aux;//Actualizo el pot
+                                }
+                            }
+                            else
+                            {
+                                int aux = com.Bet(lastBet);//Sube la apuesta
+                                lastBet = aux;//LastBet se actualiza
+                                Pot += aux;//Actualizo el pot
+                            }
+
+                        }
+                        else//Tiene una gran mano regular y muchas posibilidades de ganar.
+                        {
+                            int aux = com.AllIn();//Va allin - Tiene una buena mano
+                            lastBet = aux;//LastBet se actualiza
+                            Pot += aux;//Actualizo el pot
+                        }
+                    }
+                    else//Tiene una mano excelente
+                    {
+                        var rand = new Random();
+                        int val = rand.Next(0,30);//Aleatoriza las decisiones.
+                        if(com.CurrentBet < Pot){
+                            if(val < 10){
+                                int aux = com.AllIn();//Va allin - Tiene una buena mano
+                                lastBet = aux;//LastBet se actualiza
+                                Pot += aux;//Actualizo el pot
+                            }
+                            else
+                            {
+                                int aux = com.Bet(lastBet);//Sube la apuesta.
+                                lastBet = aux;//LastBet se actualiza
+                                Pot += aux;//Actualizo el pot
+                            }
+                        }
+                        else{
+
+                            if(val < 10){
+                                int aux = com.AllIn();//Va allin 
+                                lastBet = aux;//LastBet se actualiza
+                                Pot += aux;//Actualizo el pot
+                            }
+                            else if(val < 20)
+                            {
+                                int aux = com.Bet(lastBet);//Sube la apuesta.
+                                lastBet = aux;//LastBet se actualiza
+                                Pot += aux;//Actualizo el pot
+                            }
+                            else
+                            {
+                                //La cosa pasa.
+                            }
+                        }
+                    }
                 }
-                if (Players.Any(p => p.IsFolded || p.CurrentBet == Pot ))
+                button++;
+                bool betClosed = com.CurrentBet == Pot && pla.CurrentBet == Pot;//Ambos jugadores realizaron sus apuestas.
+                if (pla.IsFolded || com.IsFolded || betClosed)
                 {
                     roundFinished = true;
                     break;
                 }
             }
-        }
     }
 
     public void PreFlop(){
         //0. Recolectar ciegas
-            Players[0].PayBlind(BigBlind);
-            Players[1].PayBlind(BigBlind);
+        if(pla.IsBigBlind){
+            pla.PayBlind(BigBlind);
+            com.PayBlind(BigBlind/2);
+        }
+        else
+        {
+            pla.PayBlind(BigBlind/2);
+            com.PayBlind(BigBlind);
+        }
         //1. Repartir las cartas a cada jugador
-            Players[1].Hand = new Hand(Deck.DealPoket());
-            Players[0].Hand = new Hand(Deck.DealPoket());
+            pla.Hand = new Hand(Deck.DealPoket());
+            com.Hand = new Hand(Deck.DealPoket());
         //2. Ronda de apuestas.
             BettingRound();
     }
-
-}
-
-public class Table(Personaje player, Personaje computer)
-{
-    private Personaje pla = player;
-    private Personaje com = computer;
-    private List<Round> roundList;
-    //Porpiedades
-    public Personaje Pla { get => pla;}
-    public Personaje Com { get => com;}
-    //Métodos.
-
-    public void StartRound(){
-        var round = new Round();
-        //una vez iniciado el round:
-        //3. Repartir el resto de cartas, pero solo mostrar el flop
-        
-        //4. Ronda de apuestas.
-
-        //5. Mostrar el turn.
-
-        //6.Rona de apuestas.
-
-        //7.Muestro el river.
-
-        //8.Ronda de apuestas.
-
-        //9.Mostrar ganador.       
-        
-        roundList.Add(round);
+    public void Flop(){
+        //Repartir las tres cartas a mesa.
+        table = Deck.DealFlop();
+        pla.Hand.GetCards(table);
+        com.Hand.GetCards(table);
+        //Mostrar tres cartas de la jugada.
+        Console.WriteLine($"Cartas de mesa:");
+        foreach (var item in table)
+        {
+            Console.WriteLine($"|{item.Code}|");
+        }
+        //Ronda de apuestas.
+        BettingRound();
     }
-    private int CompareHands(Hand hand1 , Hand hand2){
+    public void Turn(){
+        //Repartir una carta mas
+        var turn = Deck.Deal();
+        table.Add(turn);
+        //Las añado a la mano
+        pla.Hand.GetCard(turn);
+        com.Hand.GetCard(turn);
+        //Ronda de apuestas
+        BettingRound();
+    }
+    public void River(){
+        //Repartir una carta mas
+        var turn = Deck.Deal();
+        table.Add(turn);
+        //Las añado a la mano
+        pla.Hand.GetCard(turn);
+        com.Hand.GetCard(turn);
+        //Ultima ronda de apuestas
+        BettingRound();
+        pla.Hand.DefineValue();
+        var winner = CompareHands(pla.Hand, com.Hand);// 1 player | -1 npc
+        switch (winner)
+        {
+            case 1:
+                pla.CashPot(Pot);
+                break;
+            case -1:
+                com.CashPot(Pot);
+                break;
+            default://las manos son exactamente iguales - el pot se divide entre ambos
+                pla.CashPot(Pot/2);
+                com.CashPot(Pot/2);
+                break;
+        }
+    }
+
+
+     private int CompareHands(Hand hand1 , Hand hand2){
         if (hand1.Value > hand2.Value)//compara los valores del Tipo Handvalue
         {
             return 1;//Si hand1 > hand2 devuelve 1
@@ -142,6 +266,37 @@ public class Table(Personaje player, Personaje computer)
             return 0;//Si las manos son iguales devuelve 0
         }
     }
+
+}
+
+public class Table(Personaje player, Npc computer)
+{
+    private Personaje player = player;
+    private Npc comp = computer;
+    private List<Round> roundList;
+    public string Winner;
+    //Porpiedades
+    //Métodos.
+    public void StartRound(){
+        var round = new Round(player, comp);
+        //una vez iniciado el round:
+        //3. Repartir el resto de cartas, pero solo mostrar el flop
+        
+        //4. Ronda de apuestas.
+
+        //5. Mostrar el turn.
+
+        //6.Rona de apuestas.
+
+        //7.Muestro el river.
+
+        //8.Ronda de apuestas.
+
+        //9.Mostrar ganador.       
+        
+        roundList.Add(round);
+    }
+   
 }
 
 }

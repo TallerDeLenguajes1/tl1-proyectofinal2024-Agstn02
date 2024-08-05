@@ -40,6 +40,10 @@ namespace Cards
         public KeyValuePair<int, int>[] HigherValues { get => higherValues; }
 
         //Métodos:
+        //GetCard() permite añadir 1 solo miembro a la lista.
+        public void GetCard(Card tableCard){
+            _hand.Add(tableCard);
+        }
         //GetCards() añade un rango de cartas a mi lista _hand.
         public void GetCards(List<Card> tableCards){
             _hand.AddRange(tableCards);
@@ -273,9 +277,9 @@ namespace Cards
             poket.Add(Deal());
             return poket;
         }
-        public List<Card> DealTable(){
+        public List<Card> DealFlop(){
             List<Card> table = new();
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 3; i++)
             {
                 table.Add(Deal());
             }

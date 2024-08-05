@@ -12,7 +12,7 @@ personajes[1].Hand = new Hand(newDeck.DealPoket());
 personajes[0].MostrarStats();
 personajes[1].MostrarStats();
 
-var table = newDeck.DealTable();
+var table = newDeck.DealFlop();
 personajes[0].Hand.GetCards(table);
 personajes[1].Hand.GetCards(table);
 
