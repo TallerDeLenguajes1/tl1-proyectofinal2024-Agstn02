@@ -1,6 +1,8 @@
 ﻿using Personajes;
 using Cards;
 using GameItems;
+using Historial;
+
 
 List<Personaje> personajes = await FabricaDePersonajes.CrearListaPersonajes(10);
 //Implementar menú
@@ -26,7 +28,8 @@ foreach (var item in personajes)
 {
     Rivales.Add(new Npc(item));
 }
-
+//Creo una lista para almacenar todas las Partidas.
+List<Table> tableList = [];
 //gameloop
 do{
     foreach (var item in Rivales)
@@ -37,7 +40,10 @@ do{
             mesa.PlayRound();
             mesa.Result();
         } while (!mesa.PlayerWin || !mesa.PlayerDefeat);
+        //Chequea si ganaste o no la partida.
         if(mesa.PlayerWin){
+            //Almacena la partida en la lista
+            tableList.Add(mesa);
             //Se te da un buff en tu aura, o en tus tells.Sumado a que tu bank se duplicó.
             var rand = new Random();
             int val = rand.Next(100);
@@ -54,5 +60,11 @@ do{
             Environment.Exit(0);
         }
     }
-
+    //Derrotaste a todos los rivales.
+    Console.WriteLine("Felicidades!!");
+    Console.WriteLine("Derrotaste a todos los rivales.");
+    HistorialJson.GuardarGanador(tableList, Directory.GetCurrentDirectory());
+    Console.WriteLine("Pulsa una tecla para cerrar el juego.");
+    Console.Read();
+    return;
 }while(true);
