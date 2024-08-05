@@ -1,12 +1,22 @@
 ﻿using Personajes;
-using Cards;
 using GameItems;
 using Historial;
 
 
-List<Personaje> personajes = await FabricaDePersonajes.CrearListaPersonajes(10);
 //Implementar menú
-
+int val = 0;
+string rutaHistorial = Directory.GetCurrentDirectory() + "historial.json";
+string rutaPersonajes = Directory.GetCurrentDirectory() + "historial.json";
+do{
+    Console.WriteLine(" 1 - Jugar   | 2 - Leer Historial ");
+    int.TryParse(Console.ReadLine(), out val);
+if (val == 2)
+{
+    HistorialJson.LeerHistorial(rutaHistorial);
+}
+}while(val != 1);
+//Crear los personajes
+List<Personaje> personajes = await FabricaDePersonajes.CrearListaPersonajes(10);
 //Seleccionar Personaje
 int index = 0;
 foreach(var item in personajes){
@@ -14,9 +24,10 @@ foreach(var item in personajes){
     Console.WriteLine(index + ":");
     item.MostrarStats();
     Console.WriteLine("---------------------------------------------");
+    index++;
 }
 Console.WriteLine("¿Que personaje elijes?");
-int.TryParse(Console.ReadLine(), out int input);
+int input = -1;
 do{
     int.TryParse(Console.ReadLine(), out input);
 }while(input < 0 && input > 10);
@@ -34,10 +45,10 @@ List<Table> tableList = [];
 do{
     foreach (var item in Rivales)
     {
-        var mesa = new Table(MiPersonaje, item);
+        var mesa = new Table(MiPersonaje, item , []);
         do
         {
-            mesa.PlayRound();
+           await mesa.PlayRound();
             mesa.Result();
         } while (!mesa.PlayerWin || !mesa.PlayerDefeat);
         //Chequea si ganaste o no la partida.
@@ -55,6 +66,7 @@ do{
             }
         }
         if(mesa.PlayerDefeat){
+            HistorialJson.GuardarGanador(tableList, Directory.GetCurrentDirectory());
             Console.WriteLine("Has perdido. El juego se autodestruirá en 3 segundos...");
             Thread.Sleep(3000);
             Environment.Exit(0);

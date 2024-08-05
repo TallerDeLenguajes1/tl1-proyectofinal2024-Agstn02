@@ -16,12 +16,19 @@ public class HistorialJson{
         string ganadorJson = JsonSerializer.Serialize(game);
         File.WriteAllText(ruta, ganadorJson);
     }
-    public static List<Personaje> LeerHistorial(string ruta){
+    public static void LeerHistorial(string ruta){
         if(!Existe(ruta)){
-            return [];
+            Console.WriteLine("Historial de partidas vacío.");
         }
-        var lista = JsonSerializer.Deserialize<List<Personaje>>(ruta);
-        return lista;
+        var lista = JsonSerializer.Deserialize<List<Table>>(ruta);
+        int index = 1;
+        Console.WriteLine($"Historial de ganadores:");
+        foreach(var item in lista){
+            Console.WriteLine($"---------- {index} ----------");
+            Console.WriteLine("Ganador:");
+            item.Player.MostrarStats();
+        }
+        
     }
 }
 }

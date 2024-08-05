@@ -43,19 +43,21 @@ public class Personaje{
     //Métodos para actuar en la partida.
     public int PayBlind(int amount){
         bank -= amount;
+        CurrentBet = amount;
         return amount;
     }
     public void Fold(){
         IsFolded = true;
     }
     public virtual int Bet(int min){
+        Console.Write("ingresa el monto de tu apuesta:");
         int.TryParse(Console.ReadLine(), out int bet);
         do
         {
-            if(bet == 0) Console.WriteLine($"Tu apuesta debe superar el mínimo (${min})");
-            else Console.WriteLine("Tu apuesta es mayor a tu dinero disponible.");
+            if(bet == 0) Console.WriteLine($"No puedes apostar $0. Avíspese!");
+            else if (bet > bank){Console.WriteLine("Tu apuesta es mayor a tu dinero disponible.");}
             int.TryParse(Console.ReadLine(), out bet);
-        } while (bet < min || bet > bank);
+        } while (bet < 0 || bet > bank);
         bank -= bet;
         CurrentBet += bet;
         return bet;
@@ -71,6 +73,7 @@ public class Personaje{
     public int AllIn(){
         int aux = bank;
         bank = 0;
+        CurrentBet += aux;
         return aux;
     }
     public void CashPot(int cash){

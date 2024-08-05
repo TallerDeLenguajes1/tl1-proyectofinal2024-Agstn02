@@ -236,12 +236,8 @@ namespace Cards
         }
         //Show() muestra los valores de cada carta.
         public void Show(){
-            foreach (var item in _hand)
-            {
-                Console.WriteLine(item.Code);
+            Console.WriteLine($"|[{_hand[0].Code}]| - |[{_hand[1].Code}]| ");
             }
-            Console.WriteLine(value);
-        }
     }
 
     //Clase Deck
